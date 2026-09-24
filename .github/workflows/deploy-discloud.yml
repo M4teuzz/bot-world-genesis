@@ -1,0 +1,53 @@
+name: Deploy to Discloud
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discloud-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Package application
+        run: |
+          zip -r world-genesis-bot.zip . \
+            -x '.git/*' '.github/*' 'node_modules/*' 'dist/*' 'data/*' '.env' '*.log'
+
+      - name: Upload application to Discloud
+        env:
+          DISCLOUD_API_TOKEN: ${{ secrets.DISCLOUD_API_TOKEN }}
+          DISCLOUD_APP_ID: ${{ secrets.DISCLOUD_APP_ID }}
+        run: |
+          test -n "$DISCLOUD_API_TOKEN"
+          test -n "$DISCLOUD_APP_ID"
+          curl --fail-with-body --silent --show-error \
+            --request PUT \
+            --header "api-token: $DISCLOUD_API_TOKEN" \
+            --form "file=@world-genesis-bot.zip" \
+            "https://api.discloud.app/v2/app/$DISCLOUD_APP_ID/commit"

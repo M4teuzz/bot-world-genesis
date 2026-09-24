@@ -1,0 +1,24 @@
+{
+  "name": "world-genesis-discord-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bot de verificacao, boas-vindas e tickets para o World Genesis.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/index.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "tsx --test test/**/*.test.ts",
+    "deploy:cloud": "discloud up",
+    "sync:github": "powershell -ExecutionPolicy Bypass -File scripts/sync-to-github.ps1"
+  },
+  "dependencies": {
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.2"
+  }
+}
